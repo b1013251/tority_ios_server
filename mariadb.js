@@ -1,5 +1,6 @@
 var mysql   = require("mysql");
 var locationHelper = require('./location_helper.js');
+var async   = require('async');
 
 var connection;
 
@@ -61,6 +62,72 @@ function insert_maria(jsonData) {
   });
 }
 
+function check_user(screen_name , callback) {
+  var query = 'select * from User where twitter_id = ?';
+  var realQuery = connection.query(query , screen_name);
+  var exist = false;
+
+  realQuery
+    .on('error' , function(err) {
+      console.log(err);
+      exist = false;
+    })
+    .on('result' , function(rows) {
+      if(rows != null) {
+        console.log(rows);
+        exist = true;
+      }
+    })
+    .on('end' , function() {
+      console.log('check finish');
+      console.log(exist);
+      callback(null , exist);
+    });
+}
+
+function add_user(screen_name , cookie_str) {
+  jsonData = {
+    twitter_id : screen_name,
+    cookie     : cookie_str
+  };
+
+  var query = 'insert into User set ?';
+  var realQuery = connection.query(query , jsonData , function(err, result) {
+    if(err != null) {
+       console.log("Error");
+    }
+  });
+}
+
+function check_session(cookie , callback) {
+  var query = 'select * from User where cookie = ?';
+  var realQuery = connection.query(query , cookie);
+  var exist = false;
+
+  realQuery
+    .on('error' , function(err) {
+      console.log(err);
+      exist = false;
+    })
+    .on('result' , function(rows) {
+      if(rows != null) {
+        console.log(rows);
+        exist = true;
+      }
+    })
+    .on('end' , function() {
+      console.log('check session finish');
+      console.log(exist);
+      callback(null , exist);
+    });
+}
+
+
 exports.init         = init;
 exports.read_maria   = read_maria;
 exports.insert_maria = insert_maria;
+
+exports.check_user = check_user;
+exports.add_user   = add_user;
+
+exports.check_session = check_session;

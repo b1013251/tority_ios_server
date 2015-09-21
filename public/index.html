@@ -8,6 +8,12 @@
   <body>
     <h1>テストページ</h1>
       <p>いろいろ試すページ</p>
+	<h2>パスワード送信テスト</h2>
+	<form action="/pass" method="post">
+		<input type="password" name="password" value="password">
+		<input type="submit" value="Send">
+	</form>
+
     <h2>postで画像などを送信</h2>
       <form action="/upload" method="post" enctype="multipart/form-data">
       <input type="text" name="title"><br>
