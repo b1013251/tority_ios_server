@@ -61,7 +61,6 @@ exports.upload = function (req , res ) {
 /*------------------------------------------------
   Twitterの内容から取得してデータベースに保存
 -------------------------------------------------*/
-
 function get_rand() {
   var alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTLVWXYZ0123456789";
   var randString = "";
@@ -112,8 +111,7 @@ exports.get_token = function(req, res){
 }
 
 
-/*-------------------------
------------------------
+/*------------------------------------------------
   クッキーでセッションIDを受け取りデータベース参照
 -------------------------------------------------*/
 function send_session(req,res,existStr) {
@@ -153,27 +151,21 @@ exports.check_session = function(req,res){
 -------------------------------------------------*/
 exports.user_info = function(req , res) {
   var cookie = req.headers.cookie.split("=")[1];
-  console.log("cookie: " + cookie);
-  var exist = false;
-  var existStr = "NG";
+  console.log("user_cookie: " + cookie);
+  var user_info_json ;
 
   mariadb.init();
   async.waterfall([
    function(callback) {
-      mariadb.check_session(cookie , callback);
+      mariadb.get_user_info(cookie , callback);
    },
-   function(ext , callback) {
-      exist = ext
+   function(user_info , callback) {
+      user_info_json = user_info ;
+      console.log(user_info);
       callback(null, "");
    },
    function(arg, callback) {
-     if(exist) {
-       existStr = "OK"
-     }
-     callback(null, "");
-   },
-   function(arg, callback) {
-     res.json()
+     res.json(user_info_json);
      callback(null, "done");
    }
  ]);

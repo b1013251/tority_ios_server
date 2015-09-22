@@ -42,8 +42,8 @@ var init = function(){
       console.log("location changed");
       user[socket.id].latitude  = location.latitude;
       user[socket.id].longitude = location.longitude;
-  	console.log("latitude :" + location.latitude);
-  	console.log("longitude:" + location.longitude);
+  	  console.log("latitude :" + location.latitude);
+  	  console.log("longitude:" + location.longitude);
       //全データから検索し，emitする
       mariadb.read_maria(socket.id , location);
     });

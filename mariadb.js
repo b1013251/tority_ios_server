@@ -122,6 +122,31 @@ function check_session(cookie , callback) {
     });
 }
 
+function get_user_info(cookie , callback) {
+  var query = 'select * from User where cookie = ?';
+  var realQuery = connection.query(query , cookie);
+
+  var user_json;
+
+  realQuery
+    .on('error' , function(err) {
+      console.log(err);
+    })
+    .on('result' , function(rows) {
+      if(rows != null) {
+        user_json = rows;
+        console.log(rows);
+      }
+    })
+    .on('end' , function() {
+      console.log('user session finish');
+      if(user_json == null) {
+        console.log('error')
+      }
+      callback(null, user_json);
+    });
+}
+
 
 exports.init         = init;
 exports.read_maria   = read_maria;
@@ -131,3 +156,5 @@ exports.check_user = check_user;
 exports.add_user   = add_user;
 
 exports.check_session = check_session;
+
+exports.get_user_info = get_user_info
