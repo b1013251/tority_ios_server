@@ -50,9 +50,9 @@ var init = function(){
     //画像を渡す
     socket.on("request_image" , function(data) {
       console.log("requested")
-      var data = [
+      var data = {
         message : "insted of image"
-      ]
+      }
       socket.emit("response_image" , data);
     });
 

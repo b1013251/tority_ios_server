@@ -24,7 +24,7 @@ function init() {
 //バブルを取得
 function read_maria(id , location) {
   var count = 0;
-  var query = connection.query('select * from Position');
+  var query = connection.query('select * from Post');
   query
   .on('error', function(err){
     console.log(err);
@@ -54,7 +54,7 @@ function read_maria(id , location) {
 
 //投稿機能
 function insert_maria(jsonData) {
-  var query = 'insert into Position set ?';
+  var query = 'insert into Post set ?';
   var realQuery = connection.query(query , jsonData , function(err, result) {
     if(err != null) {
        console.log("Error : Post追加エラー");
