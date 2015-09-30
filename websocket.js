@@ -3,10 +3,9 @@ var http = require('http');
 var socketIO   = require('socket.io')
 
 //my file
-var settings   = require('./settings.js');
+var settings       = require('./settings.js');
 var locationHelper = require('./location_helper.js');
-var mariadb = require('./mariadb.js');
-
+var mariadb        = require('./mariadb.js');
 
 var init = function(){
   var websocketServer = http.createServer();
@@ -47,6 +46,19 @@ var init = function(){
       //全データから検索し，emitする
       mariadb.read_maria(socket.id , location);
     });
+
+    //画像を渡す
+    socket.on("request_image" , function(data) {
+      console.log("requested")
+      var data = [
+        message : "insted of image"
+      ]
+      socket.emit("response_image" , data);
+    });
+
+    //TODO: 画像・動画送信
+
+    //TODO:
   });
 
   //サーバ起動
