@@ -1,6 +1,7 @@
 //ミドルウェア・ライブラリ読み込み
 var formidable = require('formidable');
 var twitter = require('twitter');
+var fs      = require('fs');
 var async   = require('async');
 
 var settings   = require('./settings.js');
@@ -85,10 +86,17 @@ exports.upload = function (req , res ) {
            fields.push([field, value]);
          })
          .on('file', function(field, file) {
+           fs.rename(file.path , file.path + ".jpg" , function(err) {
+             if(err) {
+               fs.unlink(file.path + ".jpg");
+               fs.rename(file.path , file.path + ".jpg");
+             }
+           })
+
            console.log("field",field);
            console.log("file" , file);
            files.push([field, file]);
-           file_path = file.path;
+           file_path = file.path + ".jpg"
          })
          .on('end', function() {
            //データベースに追加

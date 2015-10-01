@@ -39,6 +39,7 @@ function read_maria(id , location) {
         location.latitude , location.longitude , location.range
       )
     ) {
+      console.log(row);
       io.to(id).emit("message_bubbles" , row );
       count++;
     }
@@ -57,7 +58,7 @@ function insert_maria(jsonData) {
   var query = 'insert into Post set ?';
   var realQuery = connection.query(query , jsonData , function(err, result) {
     if(err != null) {
-       console.log("Error : Post追加エラー");
+       console.log("Error");
     }
   });
 }
@@ -99,20 +100,6 @@ function add_user(screen_name , cookie_str) {
   });
 }
 
-exports.add_user = function(screen_name , cookie_str) {
-  var cookie_json = {
-    id : screen_name,
-    new_cookie : cookie_str
-  }
-  var query = 'update User set cookie = :new_cookie where twitter_id = :id';
-  var realQuery = connection.query(query , cookie_json , function(err, result) {
-    if(err != null) {
-       console.log("Error");
-    }
-  });
-}
-
-
 function check_session(cookie , callback) {
   var query = 'select * from User where cookie = ?';
   var realQuery = connection.query(query , cookie);
@@ -120,7 +107,7 @@ function check_session(cookie , callback) {
 
   realQuery
     .on('error' , function(err) {
-      //console.log(err);
+      console.log(err);
       exist = false;
     })
     .on('result' , function(rows) {
@@ -131,7 +118,7 @@ function check_session(cookie , callback) {
     })
     .on('end' , function() {
       console.log('check session finish');
-      console.log("session is" + exist);
+      console.log(exist);
       callback(null , exist);
     });
 }
@@ -140,7 +127,7 @@ function get_user_info(cookie , callback) {
   var query = 'select * from User where cookie = ?';
   var realQuery = connection.query(query , cookie);
 
-  var user_json = null;
+  var user_json;
 
   realQuery
     .on('error' , function(err) {
@@ -155,7 +142,7 @@ function get_user_info(cookie , callback) {
     .on('end' , function() {
       console.log('user session finish');
       if(user_json == null) {
-        console.log("there are no sessions for this user.");
+        console.log('error')
       }
       callback(null, user_json);
     });

@@ -14,6 +14,7 @@ var settings   = require('./settings.js');
 var app             = express();
 var httpServer      = require('./http.js');
 app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/tmp')   );
 app.use(bodyParser());
 app.use(methodOverride());
 
@@ -22,6 +23,7 @@ app.post('/upload'   , httpServer.upload);          //メッセージ投稿
 app.post('/pass'     , httpServer.get_token);       //Token送信
 app.post('/session'  , httpServer.check_session);   //SessionID送信
 app.get ('/user_info', httpServer.user_info);       //User情報取得
+
 
 //http サーバリスン
 app.listen(settings.PORT , '0.0.0.0');
