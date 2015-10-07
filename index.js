@@ -23,6 +23,7 @@ app.post('/upload'   , httpServer.upload);          //メッセージ投稿
 app.post('/pass'     , httpServer.get_token);       //Token送信
 app.post('/session'  , httpServer.check_session);   //SessionID送信
 app.get ('/user_info', httpServer.user_info);       //User情報取得
+app.get ('/eval'     , httpServer.get_eval);        //評価数取得
 
 
 //http サーバリスン

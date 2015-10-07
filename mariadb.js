@@ -5,7 +5,7 @@ var async   = require('async');
 var connection;
 
 //初期化
-function init() {
+exports.init = function() {
   connection = mysql.createConnection({
     host     : 'localhost' ,
     user     : 'node' ,
@@ -22,7 +22,7 @@ function init() {
 }
 
 //バブルを取得
-function read_maria(id , location) {
+exports.read_maria = function(id , location) {
   var count = 0;
   var query = connection.query('select * from Post');
   query
@@ -39,7 +39,6 @@ function read_maria(id , location) {
         location.latitude , location.longitude , location.range
       )
     ) {
-      console.log(row);
       io.to(id).emit("message_bubbles" , row );
       count++;
     }
@@ -54,7 +53,7 @@ function read_maria(id , location) {
 }
 
 //投稿機能
-function insert_maria(jsonData) {
+exports.insert_maria = function(jsonData) {
   var query = 'insert into Post set ?';
   var realQuery = connection.query(query , jsonData , function(err, result) {
     if(err != null) {
@@ -63,7 +62,7 @@ function insert_maria(jsonData) {
   });
 }
 
-function check_user(screen_name , callback) {
+exports.check_user = function(screen_name , callback) {
   var query = 'select * from User where twitter_id = ?';
   var realQuery = connection.query(query , screen_name);
   var exist = false;
@@ -86,7 +85,7 @@ function check_user(screen_name , callback) {
     });
 }
 
-function add_user(screen_name , cookie_str) {
+exports.add_user = function(screen_name , cookie_str) {
   jsonData = {
     twitter_id : screen_name,
     cookie     : cookie_str
@@ -100,7 +99,25 @@ function add_user(screen_name , cookie_str) {
   });
 }
 
-function check_session(cookie , callback) {
+
+exports.update_user = function(callback ,cookie_str , new_cookie_str) {
+  data = [
+     new_cookie_str,
+     cookie_str
+  ];
+
+  var query = 'UPDATE User SET cookie = ? WHERE cookie = ?';
+  var sql = mysql.format(query , data);
+  console.log(sql);
+  var realQuery = connection.query(sql , function(err, result) {
+    if(err != null) {
+       console.log("Error update by mysql");
+    }
+    callback(null , true)
+  });
+}
+
+exports.check_session = function(cookie , callback) {
   var query = 'select * from User where cookie = ?';
   var realQuery = connection.query(query , cookie);
   var exist = false;
@@ -123,7 +140,7 @@ function check_session(cookie , callback) {
     });
 }
 
-function get_user_info(cookie , callback) {
+exports.get_user_info = function(cookie , callback) {
   var query = 'select * from User where cookie = ?';
   var realQuery = connection.query(query , cookie);
 
@@ -148,14 +165,24 @@ function get_user_info(cookie , callback) {
     });
 }
 
+exports.count_eval = function(callback , post_id) {
+  var query = 'select count(*) as count from Eval where post_id = ?';
+  var realQuery = connection.query(query, post_id);
+  //console.log(post_id);
+  var count;
 
-exports.init         = init;
-exports.read_maria   = read_maria;
-exports.insert_maria = insert_maria;
+  realQuery
+    .on('error' , function(err) {
+      console.log(err);
+    })
+    .on('result' , function(rows) {
+      if(rows != null) {
+        count = rows.count;
+      }
+    })
+    .on('end' , function() {
+      console.log('eval is ' + count);
+      callback(null, count);
+    });
 
-exports.check_user = check_user;
-exports.add_user   = add_user;
-
-exports.check_session = check_session;
-
-exports.get_user_info = get_user_info
+}

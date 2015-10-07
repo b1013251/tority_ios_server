@@ -3,6 +3,7 @@ var formidable = require('formidable');
 var twitter = require('twitter');
 var fs      = require('fs');
 var async   = require('async');
+var url     = require('url');
 
 var settings   = require('./settings.js');
 var mariadb    = require('./mariadb.js');
@@ -183,8 +184,33 @@ exports.get_token = function(req, res){
 /*------------------------------------------------
   クッキーでセッションIDを受け取りデータベース参照
 -------------------------------------------------*/
-function send_session(req,res,existStr) {
+function send_session(req,res,existStr,cookie_str) {
+  if(existStr == "OK") { //セッションが存在する場合{
+     var new_cookie_str = get_rand();
+     async.waterfall([
+      function(callback) {
+       mariadb.update_user(callback ,cookie_str , new_cookie_str);
+      },
+      function(success , callback) {
+        if ( !success ) {
+          console.log('upload ng');
+          res.send('NG');
+          return;
+        }
+
+        res.cookie('Session-Cookie', new_cookie_str , {maxAge:60000, httpOnly:false});
+        console.log("ok set cookie");
+        callback(null);
+      },
+      function(callback) {
+        res.send(existStr);
+        console.log("ok send cookie");
+        callback(null);
+      }
+    ]);
+  } else {
     res.send(existStr);
+  }
 }
 
 exports.check_session = function(req,res){
@@ -209,7 +235,7 @@ exports.check_session = function(req,res){
      callback(null, "");
    },
    function(arg, callback) {
-     send_session(req,res,existStr);
+     send_session(req,res,existStr,cookie);
      callback(null, "done");
    }
  ]);
@@ -237,5 +263,21 @@ exports.user_info = function(req , res) {
 
 
 /*------------------------------------------------
-  　投稿を受付ける
+  　評価数取得
 -------------------------------------------------*/
+exports.get_eval = function(req , res) {
+  var post_id = req.url.split("?")[1];
+
+  console.log("postid " + post_id);
+
+  mariadb.init();
+  async.waterfall([
+   function(callback) {
+      mariadb.count_eval(callback , post_id);
+   } ,
+   function(count , callback) {
+     res.send(count);
+     callback(null);
+   }
+ ]);
+}
